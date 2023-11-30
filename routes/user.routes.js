@@ -12,6 +12,7 @@ const isValidToken = require("../middlewares/user.middleware");
 router.post("/signup", async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
+    
 
     if (!username || !email || !password) {
       res
