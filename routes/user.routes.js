@@ -7,12 +7,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const isValidToken = require("../middlewares/user.middleware");
+const { default: axios } = require("axios");
 
 // POST "/api/user/signup" => Creates a new user account
 router.post("/signup", async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
-    
 
     if (!username || !email || !password) {
       res
@@ -106,10 +106,43 @@ router.patch("/editUser", async (req, res, next) => {
 // PATCH "/api/user/editMoto" => Updates user´s motorbike details
 router.patch("/editMoto", async (req, res, next) => {
   try {
+    console.log(req.body);
+    const { maker } = req.body;
+    if (maker.trim() === "") {
+      res.json([]);
+    } else {
+      const response = await axios.get(
+        `https://api.api-ninjas.com/v1/motorcycles?make=${maker}`,
+        {
+          headers: {
+            "X-Api-Key": process.env.X_API_KEY,
+          },
+        }
+      );
+      const allModels = [...response.data].map((eachModel) => eachModel.model);
+      res.json(allModels);
+    }
   } catch (error) {
     next(error);
   }
 });
+
+// PATCH "/api/user/editMotorbikeDetails" => Edit Motorbike details in DB
+router.patch("/editMotorbikeDetails", async (req, res, next) => {
+  try {
+    const { make, model, year } = req.body;
+    const userId = req.body.user._id;
+    const user = await User.findByIdAndUpdate(userId, {
+      motoMake: make,
+      motoModel: model,
+      motoYear: year,
+    });
+    console.log(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // PATCH "/api/user/editUserPicture" => Updates user´s picture
 router.patch("/editUserPicture", async (req, res, next) => {
   try {
