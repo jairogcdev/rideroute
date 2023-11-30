@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const routeSchema = new Schema({
+const motoRouteSchema = new Schema({
   description: {
     type: String,
     required: true,
@@ -22,6 +22,6 @@ const routeSchema = new Schema({
     required: true,
   },
 });
-const Route = model("Route", routeSchema);
+const MotoRoute = model("MotoRoute", motoRouteSchema);
 
-module.exports = Route;
+module.exports = MotoRoute;
