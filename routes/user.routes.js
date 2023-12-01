@@ -131,12 +131,14 @@ router.patch("/editMoto", async (req, res, next) => {
 // PATCH "/api/user/editMotorbikeDetails" => Edit Motorbike details in DB
 router.patch("/editMotorbikeDetails", async (req, res, next) => {
   try {
-    const { make, model, year, motoPicture } = req.body;
+    // const { make, model, year, motoPicture } = req.body;
+    const { make, model, year } = req.body;
     const userId = req.body.user._id;
-    const updatedUser =
-      motoPicture !== null
-        ? { motoMake: make, motoModel: model, motoYear: year, motoPicture }
-        : { motoMake: make, motoModel: model, motoYear: year };
+    // const updatedUser =
+    //   motoPicture !== null
+    //     ? { motoMake: make, motoModel: model, motoYear: year, motoPicture }
+    //     : { motoMake: make, motoModel: model, motoYear: year };
+    const updatedUser = { motoMake: make, motoModel: model, motoYear: year };
     await User.findByIdAndUpdate(userId, updatedUser);
     res.status(200).json("Motorbike details updated successfully");
   } catch (error) {
