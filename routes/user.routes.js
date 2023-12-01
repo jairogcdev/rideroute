@@ -4,6 +4,8 @@ const router = require("express").Router();
 
 const bcrypt = require("bcryptjs");
 
+const uploader = require("../middlewares/cloudinary.middleware");
+
 const jwt = require("jsonwebtoken");
 
 const isValidToken = require("../middlewares/user.middleware");
@@ -106,7 +108,6 @@ router.patch("/editUser", async (req, res, next) => {
 // PATCH "/api/user/editMoto" => Updates user´s motorbike details
 router.patch("/editMoto", async (req, res, next) => {
   try {
-    console.log(req.body);
     const { maker } = req.body;
     if (maker.trim() === "") {
       res.json([]);
@@ -130,14 +131,14 @@ router.patch("/editMoto", async (req, res, next) => {
 // PATCH "/api/user/editMotorbikeDetails" => Edit Motorbike details in DB
 router.patch("/editMotorbikeDetails", async (req, res, next) => {
   try {
-    const { make, model, year } = req.body;
+    const { make, model, year, motoPicture } = req.body;
     const userId = req.body.user._id;
-    const user = await User.findByIdAndUpdate(userId, {
-      motoMake: make,
-      motoModel: model,
-      motoYear: year,
-    });
-    console.log(user);
+    const updatedUser =
+      motoPicture !== null
+        ? { motoMake: make, motoModel: model, motoYear: year, motoPicture }
+        : { motoMake: make, motoModel: model, motoYear: year };
+    await User.findByIdAndUpdate(userId, updatedUser);
+    res.status(200).json("Motorbike details updated successfully");
   } catch (error) {
     next(error);
   }
@@ -151,12 +152,21 @@ router.patch("/editUserPicture", async (req, res, next) => {
   }
 });
 // PATCH "/api/user/editMotoPicture" => Updates user´s motorbike picture
-router.patch("/editMotoPicture", async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
+router.patch(
+  "/editMotoPicture",
+  uploader.single("motoPicture"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        next("No file uploaded!");
+        return;
+      }
+      res.json({ motoPicture: req.file.path });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // DELETE "/api/user/delete"=> Delete user´s account
 router.delete("/delete", async (req, res, next) => {

@@ -12,8 +12,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     allowed_formats: ["jpeg", "png"], // accepted formats
-    folder: "", // The name of the folder in cloudinary
-    resource_type: "auto",
+    folder: "Raideroute", // The name of the folder in cloudinary
   },
 });
 
