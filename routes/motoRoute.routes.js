@@ -8,6 +8,7 @@ const router = require("express").Router();
 //POST "/api/routes/create" => create a new route
 router.post("/create", async (req, res, next) => {
     const { description, user, origin, destiny, country} = req.body
+    console.log(req.body)
     //check if description is filled up
     if(!description) {
         res.status(400).json({errorMessage: "Description must be filled" })
@@ -32,6 +33,7 @@ router.post("/create", async (req, res, next) => {
 
 try {
     await MotoRoute.create({description, user, origin, destiny, country})
+    res.status(200).json("MotoRoute created")
 }catch (err) {
     next(err);
 }
@@ -40,13 +42,16 @@ try {
 //PATCH "/api/routes/coordinates/searchOrigin" => Call to the API to search with adress
 router.patch("/coordinates/searchOrigin", async (req, res, next) => {
     const { name, country} = req.body;
-    console.log(req.body)
+    if(name === "") {
+        res.status(400).json({errorMessage: "You need to provide a City name in Origin" })
+        return;
+    }
     try {
+        console.log("entrando a try")
         const responseAdress = await axios.get(`https://api.api-ninjas.com/v1/geocoding?city=${name}&country=${country}`, { 
             headers: {
             "X-Api-Key": process.env.X_API_KEY,
           },})
-          console.log(responseAdress.data)
         res.json(responseAdress.data)
     }catch (err) {
         next(err);
@@ -55,13 +60,15 @@ router.patch("/coordinates/searchOrigin", async (req, res, next) => {
 //PATCH "/api/routes/coordinates/searchDestiny" => Call to the API to search with adress
 router.patch("/coordinates/searchDestiny", async (req, res, next) => {
     const { name, country} = req.body;
-    console.log(req.body)
+    if(name === "") {
+        res.status(400).json({errorMessage: "You need to provide a City name in Destiny" })
+        return;
+    }
     try {
         const responseAdress = await axios.get(`https://api.api-ninjas.com/v1/geocoding?city=${name}&country=${country}`, { 
             headers: {
             "X-Api-Key": process.env.X_API_KEY,
           },})
-          console.log(responseAdress.data)
         res.json(responseAdress.data)
     }catch (err) {
         next(err);
