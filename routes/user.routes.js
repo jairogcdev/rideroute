@@ -171,7 +171,7 @@ router.patch("/editMotorbikePicture", async (req, res, next) => {
   }
 });
 
-// PATCH "/api/user/uploadUserPicture" => Upload user´s motorbike picture
+// PATCH "/api/user/uploadUserPicture" => Upload user´s picture
 router.patch(
   "/uploadUserPicture",
   uploader.single("userPicture"),
