@@ -101,6 +101,10 @@ router.post("/login", async (req, res, next) => {
 // PATCH "/api/user/editUser" => Updates user account
 router.patch("/editUser", async (req, res, next) => {
   try {
+    const { username, email } = req.body;
+    const userId = req.body.user._id;
+    await User.findByIdAndUpdate(userId, { username, email });
+    res.status(200).json("User details updated");
   } catch (error) {
     next(error);
   }
@@ -131,13 +135,8 @@ router.patch("/editMoto", async (req, res, next) => {
 // PATCH "/api/user/editMotorbikeDetails" => Edit Motorbike details in DB
 router.patch("/editMotorbikeDetails", async (req, res, next) => {
   try {
-    // const { make, model, year, motoPicture } = req.body;
     const { make, model, year } = req.body;
     const userId = req.body.user._id;
-    // const updatedUser =
-    //   motoPicture !== null
-    //     ? { motoMake: make, motoModel: model, motoYear: year, motoPicture }
-    //     : { motoMake: make, motoModel: model, motoYear: year };
     const updatedUser = { motoMake: make, motoModel: model, motoYear: year };
     await User.findByIdAndUpdate(userId, updatedUser);
     res.status(200).json("Motorbike details updated successfully");
@@ -148,14 +147,50 @@ router.patch("/editMotorbikeDetails", async (req, res, next) => {
 
 // PATCH "/api/user/editUserPicture" => Updates user´s picture
 router.patch("/editUserPicture", async (req, res, next) => {
+  const userId = req.body.user._id;
+  const userPicture = req.body.userPicture;
   try {
+    await User.findByIdAndUpdate(userId, { userPicture });
+
+    res.status(200).json("User picture updated successfully");
   } catch (error) {
     next(error);
   }
 });
+
 // PATCH "/api/user/editMotoPicture" => Updates user´s motorbike picture
+router.patch("/editMotorbikePicture", async (req, res, next) => {
+  const userId = req.body.user._id;
+  const motoPicture = req.body.motoPicture;
+  try {
+    await User.findByIdAndUpdate(userId, { motoPicture });
+
+    res.status(200).json("Motorbike picture updated successfully");
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH "/api/user/uploadUserPicture" => Upload user´s motorbike picture
 router.patch(
-  "/editMotoPicture",
+  "/uploadUserPicture",
+  uploader.single("userPicture"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        next("No file uploaded!");
+        return;
+      }
+      res.json({ userPicture: req.file.path });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// PATCH "/api/user/uploadMotoPicture" => Upload user´s motorbike picture
+router.patch(
+  "/uploadMotoPicture",
   uploader.single("motoPicture"),
   async (req, res, next) => {
     try {
@@ -173,13 +208,20 @@ router.patch(
 // DELETE "/api/user/delete"=> Delete user´s account
 router.delete("/delete", async (req, res, next) => {
   try {
+    const userId = req.body.user._id;
+    await User.findByIdAndDelete(userId);
+    res.status(200).json("The user has been deleted");
   } catch (error) {
     next(error);
   }
 });
+
 // GET "/api/user/info" => Get user details
 router.get("/info", async (req, res, next) => {
   try {
+    const userId = req.body.user._id;
+    const user = await User.findById(userId);
+    res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
