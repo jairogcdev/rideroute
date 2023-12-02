@@ -106,9 +106,10 @@ router.patch("/:routeID/editDetails", async (req, res, next) => {
 });
 //DELETE "/api/routes/:routeId/delete" => Delete the route
 router.delete("/:routeID/delete", async (req, res, next) => {
-  
+    console.log("borrando")
     try {
-
+        await MotoRoute.findByIdAndDelete(req.params.routeID)
+        res.status(200).json("success");
     }catch (err) {
         next(err);
     }
@@ -119,14 +120,24 @@ router.delete("/:routeID/delete", async (req, res, next) => {
 router.get("/all", async (req, res, next) => {
   
     try {
-
+        const response = await MotoRoute.find()
+        res.status(200).json(response)
     }catch (err) {
         next(err);
     }
 });
 
 
+//GET "/api/routes/:routeId/info" => Get the route informationby the id from DB
+router.get("/:routeID/info", async (req, res, next) =>{
+    try {
+        const routeDetails = await MotoRoute.findById(req.params.routeID).populate("user")
+        res.status(200).json(routeDetails)
+    } catch (err) {
+        next(err);
+    }
 
+})
 
 
 
