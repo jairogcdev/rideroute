@@ -34,6 +34,11 @@ const userSchema = new Schema(
     motoYear: {
       type: Number,
     },
+    userPicture: {
+      type: String,
+      default:
+        "https://img2.freepng.es/20180722/gfc/kisspng-user-profile-2018-in-sight-user-conference-expo-5b554c0968c377.0307553315323166814291.jpg",
+    },
     motoPicture: {
       type: String,
       default:
