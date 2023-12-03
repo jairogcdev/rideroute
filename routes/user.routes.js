@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 
 const isValidToken = require("../middlewares/user.middleware");
 const { default: axios } = require("axios");
+const MotoRoute = require("../models/MotoRoute.model");
 
 // POST "/api/user/signup" => Creates a new user account
 router.post("/signup", async (req, res, next) => {
@@ -206,9 +207,14 @@ router.patch(
 );
 
 // DELETE "/api/user/delete"=> Delete user´s account
-router.delete("/delete", async (req, res, next) => {
+router.post("/delete", async (req, res, next) => {
   try {
     const userId = req.body.user._id;
+    const user = await User.findById(userId);
+    const routes = await MotoRoute.find({ user });
+    routes.forEach(async (eachMotoRoute) => {
+      await MotoRoute.findByIdAndDelete(eachMotoRoute._id);
+    });
     await User.findByIdAndDelete(userId);
     res.status(200).json("The user has been deleted");
   } catch (error) {
@@ -217,10 +223,25 @@ router.delete("/delete", async (req, res, next) => {
 });
 
 // GET "/api/user/info" => Get user details
-router.get("/info", async (req, res, next) => {
+router.post("/details", async (req, res, next) => {
   try {
     const userId = req.body.user._id;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select({
+      _id: 0,
+      password: 0,
+      createdAt: 0,
+      updatedAt: 0,
+    });
+    res.status(200).json({ user });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET "/api/user/info" => Get user details
+router.get("/getAllUsers", async (req, res, next) => {
+  try {
+    const user = await User.find();
     res.status(200).json({ user });
   } catch (error) {
     next(error);
