@@ -209,9 +209,13 @@ router.patch(
 // DELETE "/api/user/delete"=> Delete user´s account
 router.post("/delete", async (req, res, next) => {
   try {
+    // deleteMany
+    // falta middleware solo borrar tu perfil
+    // isTokenValid acceso payload
     const userId = req.body.user._id;
     const user = await User.findById(userId);
     const routes = await MotoRoute.find({ user });
+    await MotoRoute.deleteMany({ user });
     routes.forEach(async (eachMotoRoute) => {
       await MotoRoute.findByIdAndDelete(eachMotoRoute._id);
     });
