@@ -6,11 +6,11 @@ const commentSchema = new Schema(
       required: true,
     },
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     route: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Route",
     },
   },
