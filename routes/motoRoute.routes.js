@@ -120,7 +120,7 @@ router.delete("/:routeID/delete", async (req, res, next) => {
 router.get("/all", async (req, res, next) => {
   
     try {
-        const response = await MotoRoute.find()
+        const response = await MotoRoute.find().populate("user")
         res.status(200).json(response)
     }catch (err) {
         next(err);
