@@ -90,11 +90,14 @@ router.patch("/coordinates/searchDestiny", async (req, res, next) => {
 //PATCH "/api/routes/:routeId/editRoute" => Find the route with the ID and update the coordinates
 router.patch("/:routeID/editRoute", isValidToken, async (req, res, next) => {
     const userVerify = req.payload
-    const {origin, destiny, _id} = req.body;
+    const {description, origin, destiny} = req.body;
+    const routeEdit = {description, origin, destiny }
+    console.log(routeEdit)
     try {
         const routeVerify = await MotoRoute.findById(req.params.routeID)
+        console.log(routeVerify)
         if (routeVerify.user == userVerify._id){
-            await MotoRoute.findByIdAndUpdate(req.params.routeID)
+            await MotoRoute.findByIdAndUpdate(req.params.routeID, routeEdit)
             res.status(200).json("success");
         } else {
             res.status(400).json({
