@@ -3,6 +3,7 @@ const MotoRoute = require("../models/MotoRoute.model");
 
 const router = require("express").Router();
 const isValidToken = require("../middlewares/user.middleware");
+const Comment = require("../models/Comment.model");
 
 
 //POST "/api/routes/create" => create a new route
@@ -119,6 +120,7 @@ router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
         const routeVerify = await MotoRoute.findById(req.params.routeID)
        
         if (routeVerify.user == userVerify._id){
+            await Comment.deleteMany({route: routeVerify._id})
             await MotoRoute.findByIdAndDelete(req.params.routeID)
             res.status(200).json("success");
         } else {
@@ -137,7 +139,7 @@ router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
 
 router.get("/all", async (req, res, next) => {
   try {
-    const response = await MotoRoute.find().populate("user");
+    const response = await MotoRoute.find().populate({path:"user", select: [ "username", "motoMake", "motoModel", "userPicture", "motoPicture"]});
     res.status(200).json(response);
   } catch (err) {
     next(err);
@@ -147,10 +149,7 @@ router.get("/all", async (req, res, next) => {
 //GET "/api/routes/:routeId/info" => Get the route informationby the id from DB
 router.get("/:routeID/info", async (req, res, next) => {
   try {
-    // Hacer un select de populate populate user { name, description, etc } solo coger los datos necesarios
-    const routeDetails = await MotoRoute.findById(req.params.routeID).populate(
-      "user"
-    );
+    const routeDetails = await MotoRoute.findById(req.params.routeID).populate({path:"user", select: [ "username", "motoMake", "motoModel", "userPicture", "motoPicture"]});
     res.status(200).json(routeDetails);
   } catch (err) {
     next(err);
