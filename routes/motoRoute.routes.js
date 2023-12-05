@@ -2,6 +2,8 @@ const { default: axios } = require("axios");
 const MotoRoute = require("../models/MotoRoute.model");
 
 const router = require("express").Router();
+const isValidToken = require("../middlewares/user.middleware");
+
 
 //POST "/api/routes/create" => create a new route
 router.post("/create", async (req, res, next) => {
@@ -85,37 +87,47 @@ router.patch("/coordinates/searchDestiny", async (req, res, next) => {
   }
 });
 
-//PATCH "/api/routes/coordinates/search" => Call to the API to search with adress
-router.patch("/coordinates/search", async (req, res, next) => {
-  try {
-  } catch (err) {
-    next(err);
-  }
+//PATCH "/api/routes/:routeId/editRoute" => Find the route with the ID and update the coordinates
+router.patch("/:routeID/editRoute", isValidToken, async (req, res, next) => {
+    const userVerify = req.payload
+    const {origin, destiny, _id} = req.body;
+    try {
+        const routeVerify = await MotoRoute.findById(req.params.routeID)
+        if (routeVerify.user == userVerify._id){
+            await MotoRoute.findByIdAndUpdate(req.params.routeID)
+            res.status(200).json("success");
+        } else {
+            res.status(400).json({
+                errorMessage: "User not owner of this route",
+              });
+        }
+
+
+
+    }catch (err) {
+        next(err);
+    }
 });
 
-//PATCH "/api/routes/:routeId/editRoute" => Find the route with the ID and update the coordinates
-router.patch("/:routeID/editRoute", async (req, res, next) => {
-  try {
-  } catch (err) {
-    next(err);
-  }
-});
-//PATCH "/api/routes/:routeId/editDetails" => Update the information about the route
-router.patch("/:routeID/editDetails", async (req, res, next) => {
-  try {
-  } catch (err) {
-    next(err);
-  }
-});
 //DELETE "/api/routes/:routeId/delete" => Delete the route
-router.delete("/:routeID/delete", async (req, res, next) => {
-  console.log("borrando");
-  try {
-    await MotoRoute.findByIdAndDelete(req.params.routeID);
-    res.status(200).json("success");
-  } catch (err) {
-    next(err);
-  }
+router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
+    const userVerify = req.payload
+    try {
+        const routeVerify = await MotoRoute.findById(req.params.routeID)
+       
+        if (routeVerify.user == userVerify._id){
+            await MotoRoute.findByIdAndDelete(req.params.routeID)
+            res.status(200).json("success");
+        } else {
+            res.status(400).json({
+                errorMessage: "User not owner of this route",
+              });
+        }
+
+
+    }catch (err) {
+        next(err);
+    }
 });
 
 //GET "/api/routes/all" => List all routes
