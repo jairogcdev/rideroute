@@ -11,6 +11,6 @@ const motoRoute = require("./motoRoute.routes");
 router.use("/routes", motoRoute);
 
 const commentRoute = require("./comment.routes");
-router.use("/comments", commentRoute);
+router.use("/comment", commentRoute);
 
 module.exports = router;

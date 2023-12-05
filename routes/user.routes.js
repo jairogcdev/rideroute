@@ -100,10 +100,10 @@ router.post("/login", async (req, res, next) => {
 });
 
 // PATCH "/api/user/editUser" => Updates user account
-router.patch("/editUser", async (req, res, next) => {
+router.patch("/editUser", isValidToken, async (req, res, next) => {
   try {
     const { username, email } = req.body;
-    const userId = req.body.user._id;
+    const userId = req.payload._id;
     await User.findByIdAndUpdate(userId, { username, email });
     res.status(200).json("User details updated");
   } catch (error) {
@@ -111,7 +111,7 @@ router.patch("/editUser", async (req, res, next) => {
   }
 });
 // PATCH "/api/user/editMoto" => Updates user´s motorbike details
-router.patch("/editMoto", async (req, res, next) => {
+router.patch("/editMoto", isValidToken, async (req, res, next) => {
   try {
     const { maker } = req.body;
     if (maker.trim() === "") {
@@ -134,10 +134,10 @@ router.patch("/editMoto", async (req, res, next) => {
 });
 
 // PATCH "/api/user/editMotorbikeDetails" => Edit Motorbike details in DB
-router.patch("/editMotorbikeDetails", async (req, res, next) => {
+router.patch("/editMotorbikeDetails", isValidToken, async (req, res, next) => {
   try {
     const { make, model, year } = req.body;
-    const userId = req.body.user._id;
+    const userId = req.payload._id;
     const updatedUser = { motoMake: make, motoModel: model, motoYear: year };
     await User.findByIdAndUpdate(userId, updatedUser);
     res.status(200).json("Motorbike details updated successfully");
@@ -147,8 +147,8 @@ router.patch("/editMotorbikeDetails", async (req, res, next) => {
 });
 
 // PATCH "/api/user/editUserPicture" => Updates user´s picture
-router.patch("/editUserPicture", async (req, res, next) => {
-  const userId = req.body.user._id;
+router.patch("/editUserPicture", isValidToken, async (req, res, next) => {
+  const userId = req.payload._id;
   const userPicture = req.body.userPicture;
   try {
     await User.findByIdAndUpdate(userId, { userPicture });
@@ -160,8 +160,8 @@ router.patch("/editUserPicture", async (req, res, next) => {
 });
 
 // PATCH "/api/user/editMotoPicture" => Updates user´s motorbike picture
-router.patch("/editMotorbikePicture", async (req, res, next) => {
-  const userId = req.body.user._id;
+router.patch("/editMotorbikePicture", isValidToken, async (req, res, next) => {
+  const userId = req.payload._id;
   const motoPicture = req.body.motoPicture;
   try {
     await User.findByIdAndUpdate(userId, { motoPicture });
@@ -176,6 +176,7 @@ router.patch("/editMotorbikePicture", async (req, res, next) => {
 router.patch(
   "/uploadUserPicture",
   uploader.single("userPicture"),
+  isValidToken,
   async (req, res, next) => {
     try {
       if (!req.file) {
@@ -193,6 +194,7 @@ router.patch(
 router.patch(
   "/uploadMotoPicture",
   uploader.single("motoPicture"),
+  isValidToken,
   async (req, res, next) => {
     try {
       if (!req.file) {
@@ -207,18 +209,12 @@ router.patch(
 );
 
 // DELETE "/api/user/delete"=> Delete user´s account
-router.post("/delete", async (req, res, next) => {
+router.delete("/delete", isValidToken, async (req, res, next) => {
   try {
-    // deleteMany
-    // falta middleware solo borrar tu perfil
-    // isTokenValid acceso payload
-    const userId = req.body.user._id;
+    const userId = req.payload._id;
     const user = await User.findById(userId);
     const routes = await MotoRoute.find({ user });
-    await MotoRoute.deleteMany({ user });
-    routes.forEach(async (eachMotoRoute) => {
-      await MotoRoute.findByIdAndDelete(eachMotoRoute._id);
-    });
+    await MotoRoute.deleteMany({ user }, { routes });
     await User.findByIdAndDelete(userId);
     res.status(200).json("The user has been deleted");
   } catch (error) {
@@ -227,9 +223,9 @@ router.post("/delete", async (req, res, next) => {
 });
 
 // GET "/api/user/info" => Get user details
-router.post("/details", async (req, res, next) => {
+router.get("/details", isValidToken, async (req, res, next) => {
   try {
-    const userId = req.body.user._id;
+    const userId = req.payload._id;
     const user = await User.findById(userId).select({
       _id: 0,
       password: 0,
@@ -243,7 +239,7 @@ router.post("/details", async (req, res, next) => {
 });
 
 // GET "/api/user/info" => Get user details
-router.get("/getAllUsers", async (req, res, next) => {
+router.get("/getAllUsers", isValidToken, async (req, res, next) => {
   try {
     const user = await User.find();
     res.status(200).json({ user });
