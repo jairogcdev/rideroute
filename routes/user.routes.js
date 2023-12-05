@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const isValidToken = require("../middlewares/user.middleware");
 const { default: axios } = require("axios");
 const MotoRoute = require("../models/MotoRoute.model");
+const Comment = require("../models/Comment.model");
 
 // POST "/api/user/signup" => Creates a new user account
 router.post("/signup", async (req, res, next) => {
@@ -214,6 +215,8 @@ router.delete("/delete", isValidToken, async (req, res, next) => {
     const userId = req.payload._id;
     const user = await User.findById(userId);
     const routes = await MotoRoute.find({ user });
+    await Comment.deleteMany({ route: routes });
+    await Comment.deleteMany({ user });
     await MotoRoute.deleteMany({ user }, { routes });
     await User.findByIdAndDelete(userId);
     res.status(200).json("The user has been deleted");
