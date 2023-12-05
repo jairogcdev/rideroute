@@ -22,6 +22,9 @@ router.post("/:routeId/create", isValidToken, async (req, res, next) => {
     const routeId = req.params.routeId;
     const userId = req.payload._id;
     const { comment } = req.body;
+    if (!comment) {
+      res.status(400).json({ errorMessage: "Error creating comment" });
+    }
     const route = await MotoRoute.findById(routeId);
     const user = await User.findById(userId);
     await Comment.create({ comment, user, route });
@@ -36,7 +39,7 @@ router.get("/:routeId/allComments", async (req, res, next) => {
   try {
     const routeId = req.params.routeId;
     const route = await MotoRoute.findById(routeId);
-    const comments = await Comment.find({ route });
+    const comments = await Comment.find({ route }).populate("user", "username");
     res.status(200).json({ comments });
   } catch (error) {
     next(error);
@@ -44,7 +47,7 @@ router.get("/:routeId/allComments", async (req, res, next) => {
 });
 
 //PUT "comment/:commentId/edit" => Update a comment
-router.put("/:commentId/edit", async (req, res, next) => {
+router.put("/:commentId/edit", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
     const { comment } = req.body;
@@ -56,7 +59,7 @@ router.put("/:commentId/edit", async (req, res, next) => {
 });
 
 // DELETE /comment/:commentId/delete => Delete a comment
-router.delete("/:commentId/delete", async (req, res, next) => {
+router.delete("/:commentId/delete", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
     await Comment.findByIdAndDelete(commentId);
