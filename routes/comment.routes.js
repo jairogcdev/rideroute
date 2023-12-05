@@ -31,6 +31,18 @@ router.post("/:routeId/create", isValidToken, async (req, res, next) => {
   }
 });
 
+// GET "comment/:routeId/allComments" => Shows all comments in a route
+router.get("/:routeId/allComments", async (req, res, next) => {
+  try {
+    const routeId = req.params.routeId;
+    const route = await MotoRoute.findById(routeId);
+    const comments = await Comment.find({ route });
+    res.status(200).json({ comments });
+  } catch (error) {
+    next(error);
+  }
+});
+
 //PUT "comment/:commentId/edit" => Update a comment
 router.put("/:commentId/edit", async (req, res, next) => {
   try {
