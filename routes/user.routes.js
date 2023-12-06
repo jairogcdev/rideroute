@@ -213,11 +213,10 @@ router.patch(
 router.delete("/delete", isValidToken, async (req, res, next) => {
   try {
     const userId = req.payload._id;
-    const user = await User.findById(userId);
-    const routes = await MotoRoute.find({ user });
+    const routes = await MotoRoute.find({ user: { _id: userId } });
     await Comment.deleteMany({ route: routes });
-    await Comment.deleteMany({ user });
-    await MotoRoute.deleteMany({ user }, { routes });
+    await Comment.deleteMany({ user: { _id: userId } });
+    await MotoRoute.deleteMany({ user: { _id: userId } });
     await User.findByIdAndDelete(userId);
     res.status(200).json("The user has been deleted");
   } catch (error) {

@@ -39,7 +39,10 @@ router.get("/:routeId/allComments", async (req, res, next) => {
   try {
     const routeId = req.params.routeId;
     const route = await MotoRoute.findById(routeId);
-    const comments = await Comment.find({ route }).populate("user", "username");
+    const comments = await Comment.find({ route }).populate({
+      path: "user",
+      select: ["username", "userPicture"],
+    });
     res.status(200).json({ comments });
   } catch (error) {
     next(error);
