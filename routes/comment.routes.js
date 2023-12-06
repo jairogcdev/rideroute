@@ -47,10 +47,10 @@ router.get("/:routeId/allComments", async (req, res, next) => {
 });
 
 //PUT "comment/:commentId/edit" => Update a comment
-router.put("/:commentId/edit", isValidToken, async (req, res, next) => {
+router.patch("/:commentId/edit", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
-    const { comment } = req.body;
+    const comment = req.body.comment;
     await Comment.findByIdAndUpdate(commentId, { comment });
     res.status(200).json("Comment updated succesfully");
   } catch (error) {
@@ -63,6 +63,7 @@ router.delete("/:commentId/delete", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
     await Comment.findByIdAndDelete(commentId);
+    res.status(200).json("Comment deleted succesfully");
   } catch (error) {
     next(error);
   }
