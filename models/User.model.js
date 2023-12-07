@@ -27,9 +27,11 @@ const userSchema = new Schema(
     profilePic: String,
     motoMake: {
       type: String,
+      default: "",
     },
     motoModel: {
       type: String,
+      default: "",
     },
     motoYear: {
       type: Number,
