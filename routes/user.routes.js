@@ -94,7 +94,7 @@ router.post("/login", async (req, res, next) => {
     const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
       expiresIn: "2d",
     });
-    res.json({ authToken });
+    res.status(200).json({ authToken });
   } catch (error) {
     next(error);
   }

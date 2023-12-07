@@ -11,7 +11,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    allowed_formats: ["jpeg", "png"], // accepted formats
+    allowed_formats: ["jpeg", "png", "webp"], // accepted formats
     folder: "Raideroute", // The name of the folder in cloudinary
   },
 });

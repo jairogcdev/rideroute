@@ -6,11 +6,18 @@ const User = require("../models/User.model");
 const router = require("express").Router();
 
 // GET "/api/comment/:commentId => Obtains a comment by id"
-router.get("/:commentId", async (req, res, next) => {
+router.get("/:commentId", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
     const comment = await Comment.findById(commentId);
-    res.status(200).json({ comment });
+
+    if (comment.user == req.payload._id) {
+      res.status(200).json({ comment });
+    } else {
+      res.status(400).json({
+        errorMessage: "You cant access this comment",
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -41,7 +48,7 @@ router.get("/:routeId/allComments", async (req, res, next) => {
     const route = await MotoRoute.findById(routeId);
     const comments = await Comment.find({ route }).populate({
       path: "user",
-      select: ["username", "userPicture"],
+      select: ["_id", "username", "userPicture"],
     });
     res.status(200).json({ comments });
   } catch (error) {
@@ -54,8 +61,15 @@ router.patch("/:commentId/edit", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
     const comment = req.body.comment;
-    await Comment.findByIdAndUpdate(commentId, { comment });
-    res.status(200).json("Comment updated succesfully");
+    const thisComment = await Comment.findById(commentId);
+    if (thisComment.user == req.payload._id) {
+      await Comment.findByIdAndUpdate(commentId, { comment });
+      res.status(200).json("Comment updated succesfully");
+    } else {
+      res.status(400).json({
+        errorMessage: "User not owner of this comment",
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -65,8 +79,15 @@ router.patch("/:commentId/edit", isValidToken, async (req, res, next) => {
 router.delete("/:commentId/delete", isValidToken, async (req, res, next) => {
   try {
     const commentId = req.params.commentId;
-    await Comment.findByIdAndDelete(commentId);
-    res.status(200).json("Comment deleted succesfully");
+    const comment = await Comment.findById(commentId);
+    if (comment.user == req.payload._id) {
+      await Comment.findByIdAndDelete(commentId);
+      res.status(200).json("Comment deleted succesfully");
+    } else {
+      res.status(400).json({
+        errorMessage: "User not owner of this comment",
+      });
+    }
   } catch (error) {
     next(error);
   }
