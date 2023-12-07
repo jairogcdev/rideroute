@@ -93,10 +93,8 @@ router.patch("/:routeID/editRoute", isValidToken, async (req, res, next) => {
     const userVerify = req.payload
     const {description, origin, destiny} = req.body;
     const routeEdit = {description, origin, destiny }
-    console.log(routeEdit)
     try {
         const routeVerify = await MotoRoute.findById(req.params.routeID)
-        console.log(routeVerify)
         if (routeVerify.user == userVerify._id){
             await MotoRoute.findByIdAndUpdate(req.params.routeID, routeEdit)
             res.status(200).json("success");
@@ -137,10 +135,21 @@ router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
 
 //GET "/api/routes/all" => List all routes
 
-router.get("/all", async (req, res, next) => {
+router.patch("/all", async (req, res, next) => {
+  const {sendPage, pageSize} = req.body
+  console.log(sendPage, pageSize)
   try {
     const response = await MotoRoute.find().populate({path:"user", select: [ "username", "motoMake", "motoModel", "userPicture", "motoPicture"]});
-    res.status(200).json(response);
+    const size = response.length
+    const indexToSend = (sendPage * pageSize) - pageSize;
+    console.log(indexToSend)
+    const responseClone =  JSON.parse(JSON.stringify(response));
+    const dataToSend = responseClone.splice(indexToSend,pageSize )
+    const data = {
+      routes: dataToSend,
+      size
+    }
+    res.status(200).json(data);
   } catch (err) {
     next(err);
   }
