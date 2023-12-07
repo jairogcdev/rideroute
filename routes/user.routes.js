@@ -60,7 +60,7 @@ router.post("/signup", async (req, res, next) => {
 // POST "/api/user/login" => Check if user is logged in
 router.post("/login", async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.body;  
 
     if (!username || !password) {
       res.status(400).json({
