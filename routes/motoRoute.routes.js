@@ -1,6 +1,6 @@
 const { default: axios } = require("axios");
 const MotoRoute = require("../models/MotoRoute.model");
-
+const User = require("../models/User.model");
 const router = require("express").Router();
 const isValidToken = require("../middlewares/user.middleware");
 const Comment = require("../models/Comment.model");
@@ -133,7 +133,7 @@ router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
     }
 });
 
-//GET "/api/routes/all" => List all routes
+//PATCH "/api/routes/all" => List all routes
 
 router.patch("/all", async (req, res, next) => {
   const {sendPage, pageSize} = req.body
@@ -154,6 +154,21 @@ router.patch("/all", async (req, res, next) => {
     next(err);
   }
 });
+//GET "/api/toutes/search" => search by username in DB
+
+router.patch("/search", async (req, res, next) => { 
+ const {value} = req.body
+try {
+  const userSearch = await User.find({username: value}).select({username: true})
+  const data = await MotoRoute.find({user: userSearch}).populate({path:"user", select: [ "username", "motoMake", "motoModel", "userPicture", "motoPicture"]});
+  res.status(200).json(data)
+}catch (err) {
+  next(err);
+}
+
+
+})
+
 
 //GET "/api/routes/:routeId/info" => Get the route informationby the id from DB
 router.get("/:routeID/info", async (req, res, next) => {
