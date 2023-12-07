@@ -49,8 +49,19 @@ router.post("/signup", async (req, res, next) => {
     const salt = await bcrypt.genSalt(12);
     const cryptedPassword = await bcrypt.hash(password, salt);
 
+    const foundUserName = await User.findOne({ username });
+    const foundUserEmail = await User.findOne({ email });
+    if (foundUserName) {
+      res.status(400).json({
+        errorMessage: "Username already taken",
+      });
+    }
+    if (foundUserEmail) {
+      res.status(400).json({
+        errorMessage: "Email already taken",
+      });
+    }
     await User.create({ username, password: cryptedPassword, email });
-
     res.status(200).json("User created successfully");
   } catch (error) {
     next(error);
@@ -60,7 +71,7 @@ router.post("/signup", async (req, res, next) => {
 // POST "/api/user/login" => Check if user is logged in
 router.post("/login", async (req, res, next) => {
   try {
-    const { username, password } = req.body;  
+    const { username, password } = req.body;
 
     if (!username || !password) {
       res.status(400).json({
