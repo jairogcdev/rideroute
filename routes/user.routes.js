@@ -148,7 +148,7 @@ router.patch("/editMoto", isValidToken, async (req, res, next) => {
         }
       );
       const allModels = [...response.data].map((eachModel) => eachModel.model);
-      res.json(allModels);
+      res.status(200).json(allModels);
     }
   } catch (error) {
     next(error);
