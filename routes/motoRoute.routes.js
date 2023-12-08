@@ -9,7 +9,6 @@ const Comment = require("../models/Comment.model");
 //POST "/api/routes/create" => create a new route
 router.post("/create", async (req, res, next) => {
   const { description, user, origin, destiny, country } = req.body;
-  console.log(req.body);
   //check if description is filled up
   if (!description) {
     res.status(400).json({ errorMessage: "Description must be filled" });
@@ -50,7 +49,6 @@ router.patch("/coordinates/searchOrigin", async (req, res, next) => {
     return;
   }
   try {
-    console.log("entrando a try");
     const responseAdress = await axios.get(
       `https://api.api-ninjas.com/v1/geocoding?city=${name}&country=${country}`,
       {
@@ -137,12 +135,10 @@ router.delete("/:routeID/delete",isValidToken, async (req, res, next) => {
 
 router.patch("/all", async (req, res, next) => {
   const {sendPage, pageSize} = req.body
-  console.log(sendPage, pageSize)
   try {
     const response = await MotoRoute.find().populate({path:"user", select: [ "username", "motoMake", "motoModel", "userPicture", "motoPicture"]});
     const size = response.length
     const indexToSend = (sendPage * pageSize) - pageSize;
-    console.log(indexToSend)
     const responseClone =  JSON.parse(JSON.stringify(response));
     const dataToSend = responseClone.splice(indexToSend,pageSize )
     const data = {
