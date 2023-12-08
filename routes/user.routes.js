@@ -116,6 +116,16 @@ router.patch("/editUser", isValidToken, async (req, res, next) => {
   try {
     const { username, email } = req.body;
     const userId = req.payload._id;
+    if (!username) {
+      res.status(400).json({
+        errorMessage: "Username cannot be empty",
+      });
+    }
+    if (!email) {
+      res.status(400).json({
+        errorMessage: "Email cannot be empty",
+      });
+    }
     await User.findByIdAndUpdate(userId, { username, email });
     res.status(200).json("User details updated");
   } catch (error) {
